@@ -13,7 +13,7 @@ The descriptions of principal files in this project are introduced as follows:
 - ./preprocessing_data/
   - `process_xxx.py`: process the raw 'xxx' dataset
   - `generate_data.py`: codes for generating the dataset for our model
-- ./transform_coord/: including files to convert the coordinate, which is download [here](https://github.com/wandergis/coordTransform_py).
+- ./transform_coord/: including files to convert the coordinate, which could be obtained from [here](https://github.com/wandergis/coordTransform_py).
 - ./train/
   - `train_model.py` and `train_main.py`: codes for training models
 - ./test/
