@@ -26,7 +26,7 @@ def isValidDate(date):
 
 
 # transfer txt to csv
-def getAccidentDataFromTXTtoCSV(filePath, outFilePath):
+def get_accident(filePath, outFilePath):
     in_txt = csv.reader(open(os.path.join(filePath), "r"), delimiter=';', escapechar='\n')
     dataList = list(in_txt)
     count = 0
@@ -65,14 +65,14 @@ def getAccidentDataFromTXTtoCSV(filePath, outFilePath):
 
 
 # plot accident longitude and latitude scatter
-def plotAccidentLocation(filePath):
+def plot_accident_location(filePath):
     dataFrame = pd.read_csv(filePath)
     plt.scatter(dataFrame['longitude'], dataFrame['latitude'])
     plt.show()
 
 
 # plot daily / hourly  accident numbers
-def plotAccientNumbers(filePath):
+def plot_accient_num(filePath):
     dataFrame = pd.read_csv(filePath)
     # columns = ['longitude', 'latitude', 'startTime', 'endTime']
     dataFrame['startTime'] = pd.to_datetime(dataFrame['startTime'])
@@ -86,8 +86,8 @@ def plotAccientNumbers(filePath):
 
 
 if __name__ == "__main__":
-    inFilePath = "/home/yule/文档/accident/event.txt"
-    outFilePath = "/home/yule/桌面/traffic_accident_data/accident.csv"
-    getAccidentDataFromTXTtoCSV(inFilePath, outFilePath)
-    # plotAccientNumbers(outFilePath)
-    # plotAccidentLocation(outFilePath)
+    inFilePath = "../original_data/accident_data/event.txt"
+    outFilePath = "../data/accident.csv"
+    get_accident(inFilePath, outFilePath)
+    plot_accient_num(outFilePath)
+    plot_accident_location(outFilePath)

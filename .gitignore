@@ -102,21 +102,15 @@ ENV/
 
 # mypy
 .mypy_cache/
-
-# data
-*.pkl
-*.txt
-*.csv
-*.h5
-*.json
-*.gpickle
-*.npy
 .vscode/
+original_data/*
 runs/*
 saves/*
 results/*
+data.zip
+data/*
 
-!utils/config.json
 !runs/.gitkeep
 !saves/.gitkeep
 !results/.gitkeep
+!data/.gitkeep

@@ -1,7 +1,7 @@
 import networkx as nx
 import pandas as pd
 
-data = pd.read_csv(r'/home/huxiao/Data/Beijing_road_net/edges.csv', header=0)
+data = pd.read_csv(r'../original_data/Beijing_road_net_data/Beijing_Edgelist.csv', header=0)
 edges_as_nodes = data.groupby('EDGE').agg({'XCoord': 'mean',
                                            'YCoord': 'mean',
                                            'START_NODE': 'nunique',
@@ -27,18 +27,5 @@ adjacency_as_edges = adjacency_as_edges.union(
 
 g.add_edges_from(adjacency_as_edges)
 g = nx.convert_node_labels_to_integers(g)
-nx.write_gpickle(g, 'data/beijing_roadnet.gpickle')
-
-# For read road network in Beijing.
-# nx.read_gpickle('data/beijing_roadnet.gpickle')
-
-
-# poi_divide_num = get_attribute("poi_divide_num")
-# self.poi_tree_nodes = spatial.KDTree(list(zip(self.poi['longitude'], self.poi['latitude'])))
-# # 筛选 1110m / poi_divide_num 以内的poi
-# _, nodes_id = self.poi_tree_nodes.query([n_lng, n_lat], k=None,
-#                     distance_upper_bound=0.01 / poi_divide_num)
-# selected_poi = self.poi.loc[nodes_id]
-# poi_features = selected_poi.groupby('poi_type').count()['longitude'] \
-#     .reindex(list(range(1, 21)), fill_value=0).to_list()
-# spatial_features.append(poi_features + [node_number, road_len])
+nx.write_gpickle(g, '../data/beijing_roadnet.gpickle')
+print("beijing_roadnet.gpickle writes successfully.")

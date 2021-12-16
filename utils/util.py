@@ -7,9 +7,7 @@ import torch
 
 # convert data from cpu to gpu, accelerate the running speed
 def convert_to_gpu(data):
-    if get_attribute('cuda') != -1 and torch.cuda.is_available():
-        data = data.cuda(get_attribute('cuda'))
-    return data
+    return data.to(get_attribute('device'))
 
 
 def convert_train_truth_to_gpu(train_data, truth_data):
@@ -17,16 +15,6 @@ def convert_train_truth_to_gpu(train_data, truth_data):
     # truth_data = [convert_to_gpu(data) for data in truth_data]
     truth_data = convert_to_gpu(truth_data)
     return train_data, truth_data
-
-
-# maxPool on the input tensor, in the item dimension, return the pooled value
-def maxPool(tensor, dim):
-    return torch.max(tensor, dim)[0]
-
-
-# avgPool on the input tensor, in the item dimension
-def avgPool(tensor, dim):
-    return torch.mean(tensor, dim)
 
 
 # load parameters of model

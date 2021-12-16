@@ -13,7 +13,7 @@ attributeList = ["valid_time_gmt", "valid_time", "day_ind", "temp", "wx_icon", "
 
 
 # get feature from https://www.wunderground.com/
-def getFeatureRawData():
+def getFeatureRawData(basePath):
     baseUrl = "https://api.weather.com/v1/geocode"
     # day dictionary
     monthDic = {
@@ -34,7 +34,6 @@ def getFeatureRawData():
         "units": "e"
     }
     year = "2018"
-    basePath = "/home/yule/文档/weatherData/"
     for station in stationList:
         # print(station)
         latitude = stationLatLongDic[station]["latitude"]
@@ -70,7 +69,7 @@ def convertTimestampToDatetime(value):
 
 # read raw weather json files and convert them into CSV files
 def convertJsonToCSV(baseFilePath):
-    # root -> 当前目录路径, dirs -> 当前路径下所有子目录, files -> 当前路径下所有非目录子文件
+
     for root, dirs, files in os.walk(baseFilePath):
         # print(files)
         for file in files:
@@ -114,75 +113,14 @@ def addToDict(listDict, observationData):
                     listDict["valid_time"].append(convertTimestampToDatetime(data[key]))
 
 
-# check which day's weather data is missing
-def checkCSVData(baseFilePath):
-    for root, dirs, files in os.walk(baseFilePath):
-        # print(files)
+def make_external_features(base_path, weather_path: str):
+
+    filePathList = []
+    for root, dirs, files in os.walk(base_path):
         for file in files:
-            if not file.endswith(".csv"):
-                continue
-            filePath = root + "/" + file
-            data = pd.read_csv(filePath)
-            correctCount = 48
-            data['valid_time'] = pd.to_datetime(data['valid_time'])
-            print("In ", file, " missing days are : ")
-            for name, value in data.groupby(data['valid_time'].dt.day):
-                if (len(value) != correctCount):
-                    print("day %s, missing %d values " % (name, correctCount - len(value)))
+            if file.endswith(".csv"):
+                filePathList.append(root + "/" + file)
 
-
-# read weather data CSV
-def readWeatherDataCSV(baseFilePath):
-    for root, dirs, files in os.walk(baseFilePath):
-        # print(files)
-        for file in files:
-            if not file.endswith(".csv"):
-                continue
-            filePath = root + "/" + file
-            weatherData = pd.read_csv(filePath)
-            columns = weatherData.columns.values
-            # ['valid_time_gmt' 'valid_time' 'day_ind' 'temp' 'wx_icon' 'icon_extd'
-            #                 'wx_phrase' 'dewPt' 'heat_index' 'rh' 'pressure' 'vis' 'wc' 'wdir' 'wspd']
-            # print(columns)
-            print(filePath, " data size is %d" % len(weatherData))
-            timeList = weatherData['valid_time'].unique()
-            print("total time records are %d" % len(timeList))
-
-
-# plot weather data
-def plotWeatherData(attribute):
-    AugWeatherData = pd.read_csv("/home/yule/文档/weatherData/cleanedData/BeijingCapitalStation_20180801-20180831.csv")
-    SepWeatherData = pd.read_csv("/home/yule/文档/weatherData/cleanedData/BeijingCapitalStation_20180901-20180930.csv")
-    OctWeatherData = pd.read_csv("/home/yule/文档/weatherData/cleanedData/BeijingCapitalStation_20181001-20181031.csv")
-    weatherDataList = [AugWeatherData, SepWeatherData, OctWeatherData]
-    fig = plt.figure()
-    ax_Aug = fig.add_subplot(1, 3, 1)
-    ax_Sep = fig.add_subplot(1, 3, 2)
-    ax_Oct = fig.add_subplot(1, 3, 3)
-
-    for index, data in enumerate(weatherDataList):
-        ax = None
-        data["valid_time"] = pd.to_datetime(data["valid_time"])
-        if index == 0:
-            ax = ax_Aug
-        elif index == 1:
-            ax = ax_Sep
-        else:
-            ax = ax_Oct
-        # print(type(data.groupby([data["valid_time"].dt.day, data["valid_time"].dt.hour])))
-        group = data.groupby([data["valid_time"].dt.day, data["valid_time"].dt.hour])[attribute]
-        groupMean = group.mean().unstack().transpose()
-        # print(groupMean)
-        groupMean.plot(ax=ax, kind="line", figsize=(15, 15), title='month ' + str(index + 8), legend=False)
-    plt.show()
-
-
-def make_external_features(weather_path: str):
-    # rh 湿度, wdir_cardinal 风向
-    filePathList = ["/home/yule/文档/weatherData/BeijingCapitalStation_20180801-20180831.csv",
-                    "/home/yule/文档/weatherData/BeijingCapitalStation_20180901-20180930.csv",
-                    "/home/yule/文档/weatherData/BeijingCapitalStation_20181001-20181031.csv"
-                    ]
     dataList = [pd.read_csv(path, usecols=['temp', 'dewPt', 'rh', 'wdir_cardinal', 'wspd', 'pressure', 'wx_phrase',
                                            'valid_time', 'feels_like']) for path in filePathList]
     weather = pd.concat([data for data in dataList])
@@ -190,7 +128,6 @@ def make_external_features(weather_path: str):
     weather["valid_time"] = pd.to_datetime(weather["valid_time"])
     weather = weather.set_index('valid_time')
 
-    # 剔除该列里的多余值
     weather['wx_phrase'] = weather['wx_phrase'].apply(lambda val: val.split('/')[0].strip())
     # one-hot encoding
     weather = pd.get_dummies(weather)
@@ -198,18 +135,20 @@ def make_external_features(weather_path: str):
     weather = weather.resample('1H').mean()
 
     weather.fillna(method='ffill', axis=0, inplace=True)
+
     weather.to_csv(weather_path)
+    weather.to_hdf("../data/weather.h5", key='key', mode='w')
     print(weather_path, " writes successfully.")
 
 
 if __name__ == '__main__':
-    # excute for only once
-    # getFeatureRawData()
-    baseFilePath = "/home/yule/文档/weatherData"
-    outWeatherCSVPath = "/home/yule/桌面/traffic_accident_data/weather.csv"
+
+    basePath = "../original_data/weather_data/"
+    if not os.path.exists(basePath):
+        os.makedirs(basePath, exist_ok=True)
+        getFeatureRawData(basePath)
+        convertJsonToCSV(basePath)
+
+    outWeatherPath = "../data/weather.csv"
     #  generate csv files
-    # convertJsonToCSV(baseFilePath)
-    # checkCSVData(baseFilePath)
-    # readWeatherDataCSV(baseFilePath)
-    # plotWeatherData("temp")
-    make_external_features(outWeatherCSVPath)
+    make_external_features(basePath, outWeatherPath)

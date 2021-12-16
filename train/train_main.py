@@ -5,8 +5,9 @@ from torch import optim, nn
 import numpy as np
 import json
 import sys
+import warnings
 
-from model.st_gcn import DSTGCN
+from model.DSTGCN import DSTGCN
 from train.train_model import train_model
 from utils.data_container import get_data_loaders
 from utils.load_config import get_attribute
@@ -14,7 +15,8 @@ from utils.loss import MSELoss, BCELoss
 
 
 def create_model() -> nn.Module:
-    return DSTGCN(22, 1, 38 + 5)
+    return DSTGCN(get_attribute('poi_features_number'), get_attribute('temporal_features_number'),
+                  get_attribute('weather_features_number') + get_attribute('external_temporal_features_number'))
 
 
 def create_loss(loss_type):
@@ -26,22 +28,23 @@ def create_loss(loss_type):
         raise ValueError("Unknown loss function.")
 
 
-def main(train_repeat_times):
-    # 创建data_loader
+if __name__ == '__main__':
+    warnings.filterwarnings('ignore')
+
+    # create data_loader
     data_loaders = get_data_loaders(get_attribute('K_hop'), get_attribute('batch_size'))
 
     test_metrics = []
 
-    for train_time in range(train_repeat_times):
+    for train_time in range(get_attribute("train_repeat_times")):
 
-        print(f"train DSTGCN model for the {train_time}-th time ...")
+        print(f"train DSTGCN model for the {train_time + 1}-th time ...")
 
         model = create_model()
         loss_func = create_loss(loss_type=get_attribute('loss_function'))
 
-        # 训练
-        model_folder = f"../saves/{get_attribute('data')}/{get_attribute('model_name')}"
-        tensorboard_folder = f"../runs/{get_attribute('data')}/{get_attribute('model_name')}"
+        model_folder = f"../saves/{get_attribute('model_name')}"
+        tensorboard_folder = f"../runs/{get_attribute('model_name')}"
 
         shutil.rmtree(model_folder, ignore_errors=True)
         os.makedirs(model_folder, exist_ok=True)
@@ -65,10 +68,9 @@ def main(train_repeat_times):
                                   optimizer=optimizer,
                                   model_folder=model_folder,
                                   tensorboard_folder=tensorboard_folder)
-
+        print(f'final test metric {test_metric}')
         test_metrics.append(test_metric)
 
-    # MSE, RMSE, MAE, PCC, P-VALUE, PRECISION, RECALL, F1-SCORE, AUC
     metrics = {}
     for key in test_metrics[0].keys():
         metric_list = [metric[key] for metric in test_metrics]
@@ -87,7 +89,7 @@ def main(train_repeat_times):
 
     scores_str = json.dumps(scores, indent=4)
 
-    results_folder = f"../results/{get_attribute('data')}"
+    results_folder = f"../results/"
     if not os.path.exists(results_folder):
         os.makedirs(results_folder, exist_ok=True)
 
@@ -97,7 +99,4 @@ def main(train_repeat_times):
     print(f'save path is {save_path}')
     print(f"metric -> {scores_str}")
 
-
-if __name__ == '__main__':
-    main(train_repeat_times=get_attribute("train_repeat_times"))
-    sys.exit()
+    # sys.exit()

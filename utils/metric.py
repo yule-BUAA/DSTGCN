@@ -1,11 +1,9 @@
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_error
 from scipy.stats import pearsonr
 import numpy as np
 from sklearn import metrics
 
 
-# 衡量模型的性能
 def evaluate(y_predictions: np.ndarray, y_targets: np.ndarray, threshold: float = 0.5):
     """
     :param y_predictions: a 1d array, with length as number of samples
@@ -15,16 +13,11 @@ def evaluate(y_predictions: np.ndarray, y_targets: np.ndarray, threshold: float 
     """
     assert y_predictions.shape == y_targets.shape, \
         f'Predictions of shape {y_predictions.shape} while targets of shape {y_predictions.shape}.'
-    mse = mean_squared_error(y_targets, y_predictions)
-    rmse = mse ** 0.5
-    mae = mean_absolute_error(y_targets, y_predictions)
-    pcc, p_value = pearsonr(y_predictions, y_targets)
+    rmse = mean_squared_error(y_targets, y_predictions) ** 0.5
+    pcc, _ = pearsonr(y_predictions, y_targets)
 
     y_predictions = y_predictions >= threshold
     y_targets = y_targets == 1
-
-    correct = (y_predictions == y_targets).sum()
-    accuracy = correct / len(y_predictions)
 
     tp = ((y_predictions == 1) & (y_targets == 1)).sum()
     fp = ((y_predictions == 1) & (y_targets == 0)).sum()
@@ -45,7 +38,7 @@ def evaluate(y_predictions: np.ndarray, y_targets: np.ndarray, threshold: float 
 
     auc = metrics.roc_auc_score(y_targets, y_predictions)
 
-    del y_predictions, y_targets, correct, tp, fp, fn, threshold
+    del y_predictions, y_targets, tp, fp, fn, threshold, _
 
-    # MSE, RMSE, MAE, PCC, P-VALUE, PRECISION, RECALL, F1-SCORE, AUC
+    # RMSE, PCC, PRECISION, RECALL, F1-SCORE, AUC
     return {key.upper().replace('_', '-'): val for key, val in locals().items()}

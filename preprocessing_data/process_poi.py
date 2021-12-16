@@ -1,6 +1,15 @@
 import pandas as pd
 from transform_coord.coord_converter import convert_by_type
-from preprocessing_data.generate_data import point_is_in_girds
+
+
+longitudeMin = 116.09608
+longitudeMax = 116.71040
+latitudeMin = 39.69086
+latitudeMax = 40.17647
+
+
+def point_is_in_girds(longitude, latitude):
+    return longitudeMin <= longitude <= longitudeMax and latitudeMin <= latitude <= latitudeMax
 
 
 def clean_pois(POIFilePath, outRoadsPOIPath):
@@ -28,6 +37,6 @@ def clean_pois(POIFilePath, outRoadsPOIPath):
 
 
 if __name__ == "__main__":
-    POIFilePath = "/home/yule/文档/POI data/poi_analyse.csv"
-    outRoadsPOIPath = "/home/yule/桌面/traffic_accident_data/poi.csv"
+    POIFilePath = "../original_data/POI_data/poi_analyse.csv"
+    outRoadsPOIPath = "../data/poi.csv"
     clean_pois(POIFilePath, outRoadsPOIPath)

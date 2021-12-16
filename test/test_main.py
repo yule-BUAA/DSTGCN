@@ -7,9 +7,12 @@ from utils.data_container import get_data_loaders
 from tqdm import tqdm
 from utils.util import convert_train_truth_to_gpu
 from utils.util import convert_to_gpu
+import warnings
 
 if __name__ == '__main__':
-    model_path = f"../saves/spatial_temporal_external/DSTGCN/model_0.pkl"
+    warnings.filterwarnings('ignore')
+
+    model_path = f"../saves/DSTGCN/model_0.pkl"
     print(f'model path -> {model_path}')
     model = create_model()
     model.load_state_dict(torch.load(model_path)["model_state_dict"])
@@ -19,13 +22,16 @@ if __name__ == '__main__':
 
     data_loaders = get_data_loaders(get_attribute('K_hop'), get_attribute('batch_size'))
     phase = "test"
-    tqdm_loader = tqdm(enumerate(data_loaders[phase]))
+
+    model.eval()
+    tqdm_loader = tqdm(data_loaders[phase])
     predictions, targets = list(), list()
-    for step, (g, spatial_features, temporal_features, external_features, truth_data) in tqdm_loader:
-        torch.zero_(external_features)
+    for g, spatial_features, temporal_features, external_features, truth_data in tqdm_loader:
 
         features, truth_data = convert_train_truth_to_gpu(
             [spatial_features, temporal_features, external_features], truth_data)
+        g = convert_to_gpu(g)
+
         outputs = model(g, *features)
         outputs = torch.squeeze(outputs)  # squeeze [batch-size, 1] to [batch-size]
 

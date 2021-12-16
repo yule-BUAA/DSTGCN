@@ -18,21 +18,20 @@ longitudeMax = 116.71040
 latitudeMin = 39.69086
 latitudeMax = 40.17647
 
-# 坐标转换
 longitudeMin, latitudeMin = convert_by_type(lng=longitudeMin, lat=latitudeMin, type="g2w")
 longitudeMax, latitudeMax = convert_by_type(lng=longitudeMax, lat=latitudeMax, type="g2w")
 
-# 1110m分为多少份
+# 1110m divide
 divideBound = 5
 
-# 网格的划分
+# grid divide
 widthSingle = 0.01 / math.cos(latitudeMin / 180 * math.pi) / divideBound
 width = math.floor((longitudeMax - longitudeMin) / widthSingle)
 heightSingle = 0.01 / divideBound
 height = math.floor((latitudeMax - latitudeMin) / heightSingle)
 
 
-# 得到传入的node_list的邻居节点
+# get neighbors for node in nodes
 def get_neighbors(network: nx.Graph, nodes):
     nodes_set = set()
     for node in nodes:
@@ -62,7 +61,6 @@ def collate_fn(batch):
     return tuple(ret)
 
 
-# 填充速度文件
 def fill_speed(speed_data):
     date_range = pd.date_range(start="2018-08-01", end="2018-11-01", freq="1H")[:-1]
     speed_data = speed_data.resample(rule="1H").mean()
@@ -114,7 +112,7 @@ class AccidentDataset(Dataset):
         # get `node_id` from `sample_id`
         _, _, accident_time, node_id, target = self.accident.iloc[sample_id]
 
-        # 得到邻居节点
+        # get neighbors
         neighbors = nx.single_source_shortest_path_length(self.network, node_id, cutoff=self.k_order)
 
         # neighbors -> list
@@ -141,7 +139,6 @@ class AccidentDataset(Dataset):
         temporal_features = selected_time[map(lambda ids: f'{ids[0]},{ids[1]}', zip(y_ids, x_ids))].values.transpose()
 
         # get external_features (weather + calendar)
-        # 天气使用预测的前一时刻近似, 时间点信息有月,日,周几,时间点,是否为周末
         weather = self.weather.loc[date_range[-1]].tolist()
         external_features = weather + [accident_time.month, accident_time.day, accident_time.dayofweek,
                                        accident_time.hour, int(accident_time.dayofweek >= 5)]
@@ -216,12 +213,3 @@ def get_data_loaders(k_order, batch_size):
                               num_workers=16)
     return dls
 
-
-if __name__ == "__main__":
-    dls = get_data_loaders(get_attribute("K_hop"), get_attribute('batch_size'))
-    for key in ["train", "validate", "test"]:
-        for step, (g, spatial_features, temporal_features, external_features, y) in tqdm(enumerate(dls[key])):
-            # input_data, truth_data
-            # if step == 0:
-            #     print(g, spatial_features.shape, temporal_features.shape, external_features.shape, y.shape)
-            pass

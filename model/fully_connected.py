@@ -1,7 +1,6 @@
 import torch.nn as nn
 
 
-# Fully connected neural network with hidden layers
 class fully_connected_layer(nn.Module):
 
     def __init__(self, input_size, hidden_size, output_size):

@@ -1,18 +1,9 @@
 {
-  "data": "spatial_temporal_external",
   "model_name": "DSTGCN",
 
-  "use_spatial_features": true,
-  "use_temporal_features": true,
-  "use_external_features": true,
-
-  "use_SBlock": true,
-  "use_STBlock": true,
-  "use_Embedding": true,
-
-  "train_repeat_times": 3,
-  "epochs": 150,
-  "cuda": 1,
+  "train_repeat_times": 1,
+  "epochs": 100,
+  "cuda": 0,
 
   "temporal_features_number": 1,
   "weather_features_number": 38,
@@ -26,7 +17,6 @@
   "optim": "Adam",
   "weight_decay": 1e-3,
   "K_hop": 10,
-  "poi_divide_num": 3,
 
   "spatial_features_mean": [
     6.40254292e+00,

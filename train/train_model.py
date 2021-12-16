@@ -47,18 +47,12 @@ def train_model(model: nn.Module,
                     model.eval()
 
                 steps, predictions, targets = 0, list(), list()
-                tqdm_loader = tqdm(enumerate(data_loaders[phase]))
-                for step, (g, spatial_features, temporal_features, external_features, truth_data) in tqdm_loader:
-
-                    if not get_attribute("use_spatial_features"):
-                        torch.zero_(spatial_features)
-                    if not get_attribute("use_temporal_features"):
-                        torch.zero_(temporal_features)
-                    if not get_attribute("use_external_features"):
-                        torch.zero_(external_features)
+                tqdm_loader = tqdm(data_loaders[phase], ncols=120)
+                for g, spatial_features, temporal_features, external_features, truth_data in tqdm_loader:
 
                     features, truth_data = convert_train_truth_to_gpu(
                         [spatial_features, temporal_features, external_features], truth_data)
+                    g = convert_to_gpu(g)
 
                     with torch.set_grad_enabled(phase == 'train'):
                         outputs = model(g, *features)
@@ -81,7 +75,6 @@ def train_model(model: nn.Module,
                     tqdm_loader.set_description(
                         f'{phase:8} epoch: {epoch:3}, {phase:8} loss: {running_loss[phase] / steps:3.6}')
 
-                    # For the issue that the CPU memory increases while training. DO NOT know why, but it works.
                     torch.cuda.empty_cache()
 
                 print(f'{phase} metric ...')

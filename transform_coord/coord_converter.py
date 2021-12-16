@@ -25,6 +25,7 @@ LAT_COLUMN = ''
 # Skip invalid row
 SKIP_INVALID_ROW = False
 
+
 def convert():
     with open(INPUT, 'r') as input_file:
         input_file_reader = csv.reader(input_file)
@@ -66,6 +67,7 @@ def convert():
                     # Data is valid
                     output_file_writer.writerow(row)
 
+
 def get_lng_lat_index(headers):
     try:
         if LNG_COLUMN == '' and LAT_COLUMN == '':
@@ -75,6 +77,7 @@ def get_lng_lat_index(headers):
     except ValueError as error:
         print('Error: ' + str(error).split('is', 1)[0] + 'is missing from csv header. Or use -n or -a to specify custom column name for lng or lat.')
         sys.exit()
+
 
 def convert_by_type(lng, lat, type):
     if type == 'g2b':
@@ -92,41 +95,3 @@ def convert_by_type(lng, lat, type):
     else:
         print('Usage: type must be in one of g2b, b2g, w2g, g2w, b2w, w2b')
         sys.exit()
-
-if __name__ == '__main__':
-
-    # print(gcj02_to_wgs84(116.4172, 39.93889))
-
-    print(wgs84_to_gcj02(4326, 39.93889))
-
-    # parser = argparse.ArgumentParser(description='Convert coordinates in csv files.', usage='%(prog)s [-h] -i INPUT -o OUTPUT -t TYPE [-n LNG_COLUMN] [-a LAT_COLUMN] [-s SKIP_INVALID_ROW]', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    #
-    # group = parser.add_argument_group('arguments')
-    #
-    # group.add_argument('-i', '--input', help='Location of input file', default=argparse.SUPPRESS, metavar='')
-    # group.add_argument('-o', '--output', help='Location of output file', default=argparse.SUPPRESS, metavar='')
-    # group.add_argument('-t', '--type', help='Convert type, must be one of: g2b, b2g, w2g, g2w, b2w, w2b', default=argparse.SUPPRESS, metavar='')
-    # group.add_argument('-n', '--lng_column', help='Column name for longitude', default='lng', metavar='')
-    # group.add_argument('-a', '--lat_column', help='Column name for latitude', default='lat', metavar='')
-    # group.add_argument('-s', '--skip_invalid_row', help='Whether to skip invalid row', default=False, type=bool, metavar='')
-    #
-    # args = parser.parse_args()
-    # # print('\nArguments you provide are:')
-    # # for arg in vars(args):
-    # #     print '{0:20} {1}'.format(arg, str(getattr(args, arg)))
-    #
-    # # Get arguments
-    # if not args.input or not args.output or not args.type:
-    #     parser.print_help()
-    # else:
-    #     INPUT = args.input
-    #     OUTPUT = args.output
-    #     TYPE = args.type
-    #
-    # if args.lng_column and args.lat_column:
-    #     LNG_COLUMN, LAT_COLUMN = args.lng_column, args.lat_column
-    #
-    # if args.skip_invalid_row:
-    #     SKIP_INVALID_ROW = args.skip_invalid_row
-    #
-    # convert()
