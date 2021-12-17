@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     scores_str = json.dumps(scores, indent=4)
 
-    results_folder = f"../results/"
+    results_folder = f"../results"
     if not os.path.exists(results_folder):
         os.makedirs(results_folder, exist_ok=True)
 
