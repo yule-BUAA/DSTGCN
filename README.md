@@ -66,7 +66,7 @@ Hyperparameters could be found in utils/`config.json` and you can adjust them wh
 
 ## How to use
 - Training: after setting the parameters, run ```python train_main.py``` to train models. 
-- Testing: run ```python test_maim.py``` to evaluate models based on the path of saved models. 
+- Testing: run ```python test_main.py``` to evaluate models based on the path of saved models. 
 
 ##  Principal environmental dependencies
 - [PyTorch == 1.8.1](https://pytorch.org/)
