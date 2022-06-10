@@ -1,6 +1,6 @@
 # Deep Spatio-Temporal Graph Convolutional Network for Traffic Accident Prediction (DSTGCN)
 
-DSTGCN is a graph-based neural network that predictsZ the risk of traffic accidents in the future.
+DSTGCN is a graph-based neural network that predicts the risk of traffic accidents in the future.
 
 Please refer to our Neurocomputing 2021 paper [“**Deep Spatio-Temporal Graph Convolutional Network for Traffic Accident Prediction**”](https://www.sciencedirect.com/science/article/pii/S092523122031451X#!) for more details.
 
